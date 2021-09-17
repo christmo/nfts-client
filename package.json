@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "nft.storage": "^3.2.2",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
-    "react-scripts": "^4.0.3"
+    "react-scripts": "^4.0.3",
+    "web3": "^1.5.2"
   },
   "scripts": {
     "dev": "BROWSER=none react-scripts start",
