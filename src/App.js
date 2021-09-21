@@ -1,93 +1,31 @@
 import React, { Component, useEffect, useState } from 'react';
-import './App.css';
+//import './App.css';
 import getWeb3 from './getWeb3';
 import VolcanoTokenContract from './contracts/VolcanoToken.json';
+//import styles from './App.style.css';
+import { Button, Card, Container } from 'react-bootstrap';
+import Toast from 'react-bootstrap/Toast';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Mint from './Mint';
+import Home from './Home';
+import { NoMatch } from './NoMatch';
+import { Layout } from './components/Layout';
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
-
-  componentDidMount = async () => {
-    try {
-      // Get network provider and web3 instance.
-      const web3 = await getWeb3();
-
-      // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
-
-      // Get the contract instance.
-      const networkId = await web3.eth.net.getId();
-      console.log(networkId);
-      const deployedNetwork = VolcanoTokenContract.networks[networkId];
-      const instance = new web3.eth.Contract(
-        VolcanoTokenContract.abi,
-        deployedNetwork && deployedNetwork.address
-      );
-
-      console.log(await instance.methods.owner().call());
-
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
-    } catch (error) {
-      // Catch any errors for any of the above operations.
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
-      console.error(error);
-    }
-  };
-
-  runExample = async () => {
-    const { web3, accounts, contract } = this.state;
-    const account = accounts[0];
-    const { owner, symbol, mint, getOwnership } = contract.methods;
-    console.log(contract.methods);
-    console.log(account);
-    console.log(await owner().call());
-    console.log(await symbol().call());
-    //await mint("hola").send({ from: account });
-    let o = await getOwnership(account).call();
-    console.log(o);
-  };
-
-  uploadNFT = async (name, description) => {
-    const apiKey = '<Key>';
-    const client = new NFTStorage({ token: apiKey });
-
-    const metadata = await client.store({
-      name: name,
-      description: description,
-      image: new File(
-        [
-          /* data */
-        ],
-        'pinpie.jpg',
-        { type: 'image/jpg' }
-      )
-    });
-    console.log(metadata.url);
-  };
-
   render() {
-    if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
-    }
     return (
-      <div className="App">
-        <h1>NFT Exchange</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 42</strong> of App.js.
-        </p>
-        <div>
-          The stored value is: {this.state.storageValue}
-        </div>
-      </div>
+      <React.Fragment>
+        <Layout>
+          <Router>
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <Route exact path="/mint" component={Mint} />
+              <Route exact path="/app" component={App} />
+              <Route component={NoMatch} />
+            </Switch>
+          </Router>
+        </Layout>
+      </React.Fragment>
     );
   }
 }
