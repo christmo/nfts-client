@@ -40,11 +40,31 @@ class Home extends Component {
   };
 
   loadData = async () => {
-    const { web3, accounts, contract } = this.state;
-    const account = accounts[0];
-    const { getOwnership } = contract.methods;
-    let tokens = await getOwnership(account).call();
+    const { contract } = this.state;
+    //const account = accounts[0];
+    const { getListTokensCirculating } = contract.methods;
+    let tokens = await getListTokensCirculating().call();
     this.setState({ tokens });
+  };
+
+  onClickConnect = () => {
+    console.log("click");
+  };
+
+  connectButton = () => {
+    let button = (
+      <Button variant="warning" onClick={this.onClickConnect}>
+        Connect Wallet
+      </Button>
+    );
+    if (this.state.accounts) {
+      button = this.state.accounts.map(acc =>
+        <Button variant="success" key="{acc}">
+          {acc.slice(0, 5)}...{acc.slice(acc.length - 5, acc.length)}
+        </Button>
+      );
+    }
+    return button;
   };
 
   render() {
@@ -54,24 +74,20 @@ class Home extends Component {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     console.log(this.state.tokens);
-    if (this.state.accounts) {
-      accounts = this.state.accounts.map(acc =>
-        <Button variant="success" key="{acc}">
-          {acc.slice(0, 5)}...{acc.slice(acc.length - 5, acc.length)}
-        </Button>
-      );
-    }
+    let button = this.connectButton();
 
     if (this.state.tokens) {
       nfts = this.state.tokens.map(token =>
         <Card style={{ width: '18rem' }} key={token.tokenId}>
-          <Card.Img variant="top" src={token.uri} />
+          <Card.Img variant="top" src={token.tokenURL} />
           <Card.Body>
             <Card.Title>
               NFT {token.tokenId}
             </Card.Title>
             <Card.Text>Reference Text</Card.Text>
-            <Button variant="primary">Go somewhere</Button>
+            <Button variant="primary" onClick={this.onClickConnect}>
+              Go somewhere
+            </Button>
           </Card.Body>
         </Card>
       );
@@ -83,7 +99,7 @@ class Home extends Component {
             <h1>NFT Volcano Tokens</h1>
           </Col>
           <Col sm={1}>
-            {accounts}
+            {button}
           </Col>
         </Row>
         <Row className="justify-content-center">
