@@ -1,10 +1,4 @@
 import React, { Component, useEffect, useState } from 'react';
-//import './App.css';
-import getWeb3 from './getWeb3';
-import VolcanoTokenContract from './contracts/VolcanoToken.json';
-//import styles from './App.style.css';
-import { Button, Card, Container } from 'react-bootstrap';
-import Toast from 'react-bootstrap/Toast';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Mint from './Mint';
 import Home from './Home';

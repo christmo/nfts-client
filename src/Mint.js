@@ -1,23 +1,9 @@
 import React, { Component, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import ImageUploading from 'react-images-uploading';
-import styled from 'styled-components';
 import getWeb3 from './getWeb3';
 import VolcanoTokenContract from './contracts/VolcanoToken.json';
 import { Container } from 'react-bootstrap';
 import { NFTStorage, File } from 'nft.storage';
-
-const Button = styled.button`
-  /* Adapt the colors based on primary prop */
-  background: ${props => (props.primary ? 'palevioletred' : 'white')};
-  color: ${props => (props.primary ? 'white' : 'palevioletred')};
-
-  font-size: 1em;
-  margin: 1em;
-  padding: 0.25em 1em;
-  border: 2px solid palevioletred;
-  border-radius: 3px;
-`;
 
 class Mint extends React.Component {
   state = {
@@ -29,10 +15,6 @@ class Mint extends React.Component {
   constructor(props) {
     super(props);
     console.log(props);
-    /*    this.state = {
-      isFetching: false,
-      name: 'christmo'
-    };*/
   }
 
   componentDidMount = async () => {
@@ -84,12 +66,12 @@ class Mint extends React.Component {
     const account = accounts[0];
     const { mint, symbol } = contract.methods;
 
-	let metadata = await nft;
-	const ipfs = 'https://ipfs.io/ipfs';
-	let path = ipfs + metadata.data.image.pathname.substring(1);
-	console.log(path);
-	this.setState({ image: path });
-	await mint(this.state.image).send({ from: account });
+    let metadata = await nft;
+    const ipfs = 'https://ipfs.io/ipfs';
+    let path = ipfs + metadata.data.image.pathname.substring(1);
+    console.log(path);
+    this.setState({ image: path });
+    await mint(this.state.image).send({ from: account });
     /*nft.then(metadata => {
       const ipfs = 'https://ipfs.io/ipfs';
       let path = ipfs + metadata.data.image.pathname.substring(1);
@@ -164,11 +146,10 @@ class Mint extends React.Component {
   };
 
   render() {
-    //console.log(this.state);
     return (
       <div>
-        <h1>GeeksforGeeks</h1>
-        <h3>File Upload using React!</h3>
+        <h1>Mint a new Token</h1>
+        <h3>Upload image to NFT.storage!</h3>
         <div>
           <input type="file" onChange={this.onFileChange} />
           <button onClick={this.onFileUpload}>Upload!</button>
@@ -177,19 +158,6 @@ class Mint extends React.Component {
         {this.image()}
       </div>
     );
-    /*return (
-      <div>
-        <h1>
-          Hello Mint, {this.state.name}
-        </h1>
-        <Button as="a" href="/">
-          Normal
-        </Button>
-        <Button primary onClick={this.mint}>
-          Primary
-        </Button>
-      </div>
-    );*/
   }
 }
 
