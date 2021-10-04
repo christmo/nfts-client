@@ -2,6 +2,7 @@ import React, { Component, useEffect, useState } from 'react';
 import getWeb3 from './getWeb3';
 import VolcanoTokenContract from './contracts/VolcanoToken.json';
 import NFT from './components/NFT';
+import MintToken from './components/MintToken';
 
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -161,13 +162,8 @@ class Home extends Component {
                 <MenuIcon />
               </IconButton>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Volcano Tokens NFTs
-                <Button
-                  color="inherit"
-                  sx={{ ml: '10%', border: '1px dashed #f3f3f3' }}
-                >
-                  Mint
-                </Button>
+                Volcano Tokens NFTs - Encode Academy
+                <MintToken blockchain={this.state.blockchain} />
               </Typography>
               <Typography component="div">
                 <strong>Market Cap: </strong>
