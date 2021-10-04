@@ -1,0 +1,105 @@
+<div>
+<Container fluid>
+  <Row className="justify-content-center">
+	<Col xs md lg="auto">
+	  <h1>NFT Volcano Tokens</h1>
+	</Col>
+	<Col sm={1}>
+	  {button}
+	</Col>
+  </Row>
+  <Row className="justify-content-center">
+	<Col xs md lg="auto">
+	  <div>---</div>
+	  <Button as="a" href="/mint" variant="light">
+		Mint
+	  </Button>
+	</Col>
+  </Row>
+  <Row>
+	<Col>
+	  <div>Gallery:</div>
+	</Col>
+  </Row>
+  <Row md={6} xs="auto">
+	{nfts}
+  </Row>
+</Container>
+
+<Modal show={this.state.show} onHide={this.handleClose}>
+  <Modal.Header closeButton>
+	<Modal.Title>Allow Buy Token</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+	Allow to buy the token {this.state.tokenToSell.tokenId} from the
+	address: {this.state.tokenToSell.buyer}
+	<Form>
+	  <Form.Group className="mb-3" controlId="formBuyerAddress">
+		<Form.Label>Buyer Address</Form.Label>
+		<Form.Control
+		  type="text"
+		  placeholder="0x..."
+		  onChange={e => this.setState({ formAddress: e.target.value })}
+		/>
+		<Form.Text className="text-muted">
+		  Address to allow buy the token
+		</Form.Text>
+	  </Form.Group>
+
+	  <Form.Group className="mb-3" controlId="formTokenPrice">
+		<Form.Label>Token Price</Form.Label>
+		<Form.Control
+		  type="text"
+		  placeholder="Price"
+		  onChange={e => this.setState({ formPrice: e.target.value })}
+		/>
+	  </Form.Group>
+	</Form>
+  </Modal.Body>
+  <Modal.Footer>
+	<Button variant="secondary" onClick={this.handleClose}>
+	  Close
+	</Button>
+	<Button
+	  variant="primary"
+	  onClick={() => this.allowToBuyToken(this.state.tokenToSell)}
+	>
+	  Allow
+	</Button>
+  </Modal.Footer>
+</Modal>
+</div>
+
+
+----
+
+
+<Card style={{ width: '18rem' }} key={token.tokenId}>
+	<Card.Img variant="top" src={token.tokenURL} />
+	<Card.Body>
+	  <Card.Title>
+		NFT {token.tokenId}
+	  </Card.Title>
+	  <Card.Text>
+		Price: {token.value}
+	  </Card.Text>
+	  <Button
+		disabled={!this.disableMyTokens(token)}
+		variant="primary"
+		onClick={() => this.unlockToken(token)}
+	  >
+		Sell to
+	  </Button>
+	  <Button
+		disabled={this.disableMyTokens(token)}
+		variant="primary"
+		onClick={() => this.buyToken(token)}
+	  >
+		Buy
+	  </Button>
+	</Card.Body>
+  </Card>
+
+
+  -- 
+

@@ -1,15 +1,29 @@
 import React, { Component, useEffect, useState } from 'react';
 import getWeb3 from './getWeb3';
 import VolcanoTokenContract from './contracts/VolcanoToken.json';
-import {
-  Button,
-  Card,
-  Container,
-  Col,
-  Row,
-  Modal,
-  Form
-} from 'react-bootstrap';
+import NFT from './components/NFT';
+
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import { alpha } from '@mui/material/styles';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+
+const Item = styled(Paper)(({ theme }) => ({
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary
+}));
 
 class Home extends Component {
   state = {
@@ -54,9 +68,14 @@ class Home extends Component {
 
       console.log(await instance.methods.owner().call());
 
+      let blockchain = {
+        web3: web3,
+        contract: instance,
+        accounts: accounts
+      };
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.loadData);
+      this.setState({ blockchain: blockchain }, this.loadData);
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -67,9 +86,13 @@ class Home extends Component {
   };
 
   loadData = async () => {
-    const { contract, accounts } = this.state;
+    const { contract, accounts } = this.state.blockchain;
     const account = accounts[0];
-    const { getListTokensCirculating, getOwnership } = contract.methods;
+    const {
+      getListTokensCirculating,
+      getOwnership,
+      marketCap
+    } = contract.methods;
     let tokens = await getListTokensCirculating().call();
     let edited = [];
     for (let i = 0; i < tokens.length; i++) {
@@ -81,50 +104,12 @@ class Home extends Component {
       }
     }
     let myTokens = await getOwnership(account).call();
-    this.setState({ tokens: edited, myTokens });
+    let nfts = await marketCap().call();
+    this.setState({ tokens: edited, myTokens, marketCap: nfts });
   };
 
   onClickConnect = () => {
     console.log('click');
-  };
-  buyToken = async token => {
-    const { contract, accounts, web3 } = this.state;
-    const { buy } = contract.methods;
-    const account = accounts[0];
-    let value = new web3.utils.BN(token.value);
-    let tx = await buy(token.tokenId).send({
-      from: account,
-      value: web3.utils.fromWei(value, 'wei')
-    });
-    console.log(tx);
-  };
-  unlockToken = async token => {
-    const { contract, accounts, web3 } = this.state;
-    const buyer = accounts[0];
-    let tokenToSell = {
-      ...token,
-      buyer: buyer
-    };
-    console.log(tokenToSell);
-    this.setState({ tokenToSell: tokenToSell });
-    this.handleShow();
-  };
-
-  allowToBuyToken = async token => {
-    const { contract, formAddress } = this.state;
-    const { allowBuy, approve, setApprovalForAll } = contract.methods;
-    const buyer = formAddress;
-    const seller = token.owner;
-    let tx = await allowBuy(token.tokenId, 10, buyer).send({ from: seller });
-    //let tx = await setApprovalForAll(buyer, true).send({
-    //  from: seller
-    //});
-    //let tx = await approve(buyer, token.tokenId).send({
-    //  from: seller
-    //});
-    console.log(tx);
-    console.log(this.state);
-    this.handleClose();
   };
 
   connectButton = () => {
@@ -133,8 +118,8 @@ class Home extends Component {
         Connect Wallet
       </Button>
     );
-    if (this.state.accounts) {
-      button = this.state.accounts.map(acc =>
+    if (this.state.blockchain && this.state.blockchain.accounts) {
+      button = this.state.blockchain.accounts.map(acc =>
         <Button variant="success" key="{acc}">
           {acc.slice(0, 5)}...{acc.slice(acc.length - 5, acc.length)}
         </Button>
@@ -144,118 +129,74 @@ class Home extends Component {
   };
 
   render() {
-    let accounts;
     let nfts;
-    if (!this.state.web3) {
+    if (this.state.blockchain && !this.state.blockchain.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     let button = this.connectButton();
-    //console.log(this.state.tokens);
+
     if (this.state.tokens) {
       nfts = this.state.tokens.map(token => {
         if (token.tokenId != 0) {
           return (
-            <Card style={{ width: '18rem' }} key={token.tokenId}>
-              <Card.Img variant="top" src={token.tokenURL} />
-              <Card.Body>
-                <Card.Title>
-                  NFT {token.tokenId}
-                </Card.Title>
-                <Card.Text>
-                  Price: {token.value}
-                </Card.Text>
-                <Button
-                  disabled={!this.disableMyTokens(token)}
-                  variant="primary"
-                  onClick={() => this.unlockToken(token)}
-                >
-                  Sell to
-                </Button>
-                <Button
-                  disabled={this.disableMyTokens(token)}
-                  variant="primary"
-                  onClick={() => this.buyToken(token)}
-                >
-                  Buy
-                </Button>
-              </Card.Body>
-            </Card>
+            <Grid item xs={3} key={token.tokenId}>
+              <NFT token={token} blockchain={this.state.blockchain} />
+            </Grid>
           );
         }
       });
     }
     return (
-      <div>
-        <Container fluid>
-          <Row className="justify-content-center">
-            <Col xs md lg="auto">
-              <h1>NFT Volcano Tokens</h1>
-            </Col>
-            <Col sm={1}>
+      <React.Fragment>
+        <Box sx={{ flexGrow: 1 }}>
+          <AppBar position="static" sx={{ background: '#191630' }}>
+            <Toolbar>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                Volcano Tokens NFTs
+                <Button
+                  color="inherit"
+                  sx={{ ml: '10%', border: '1px dashed #f3f3f3' }}
+                >
+                  Mint
+                </Button>
+              </Typography>
+              <Typography component="div">
+                <strong>Market Cap: </strong>
+                {this.state.marketCap}
+              </Typography>
               {button}
-            </Col>
-          </Row>
-          <Row className="justify-content-center">
-            <Col xs md lg="auto">
-              <div>---</div>
-              <Button as="a" href="/mint" variant="light">
-                Mint
+              <Button color="inherit" sx={{ display: 'none' }}>
+                Login
               </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <div>Gallery:</div>
-            </Col>
-          </Row>
-          <Row md={6} xs="auto">
+            </Toolbar>
+          </AppBar>
+        </Box>
+        <CssBaseline />
+        <Container
+          maxWidth="xl"
+          sx={{ background: '#191630', height: '100vh' }}
+        >
+          <Box sx={{ flexGrow: 1, pb: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={11} />
+              <Grid item xs={1} />
+            </Grid>
+          </Box>
+
+          <Grid container spacing={2}>
             {nfts}
-          </Row>
+          </Grid>
         </Container>
-
-        <Modal show={this.state.show} onHide={this.handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Allow Buy Token</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Allow to buy the token {this.state.tokenToSell.tokenId} from the
-            address: {this.state.tokenToSell.buyer}
-            <Form>
-              <Form.Group className="mb-3" controlId="formBuyerAddress">
-                <Form.Label>Buyer Address</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="0x..."
-                  onChange={e => this.setState({ formAddress: e.target.value })}
-                />
-                <Form.Text className="text-muted">
-                  Address to allow buy the token
-                </Form.Text>
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="formTokenPrice">
-                <Form.Label>Token Price</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Price"
-                  onChange={e => this.setState({ formPrice: e.target.value })}
-                />
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.handleClose}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => this.allowToBuyToken(this.state.tokenToSell)}
-            >
-              Allow
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+      </React.Fragment>
     );
   }
 }

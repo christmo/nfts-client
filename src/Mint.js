@@ -2,7 +2,6 @@ import React, { Component, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import getWeb3 from './getWeb3';
 import VolcanoTokenContract from './contracts/VolcanoToken.json';
-import { Container } from 'react-bootstrap';
 import { NFTStorage, File } from 'nft.storage';
 
 class Mint extends React.Component {
