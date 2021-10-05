@@ -61,7 +61,10 @@ class Home extends Component {
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       //console.log(networkId);
-      const deployedNetwork = VolcanoTokenContract.networks[networkId];
+      //const deployedNetwork = VolcanoTokenContract.networks[networkId];
+	  const deployedNetwork = {
+        address: '0x8145343153773fF8d7011a0bC50681Eeb074EB9b'
+      };
       const instance = new web3.eth.Contract(
         VolcanoTokenContract.abi,
         deployedNetwork && deployedNetwork.address

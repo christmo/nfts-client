@@ -132,13 +132,13 @@ class MintToken extends Component {
             </Typography>
 			<input type="file" onChange={this.onFileChange}/>
 			<Button color="inherit" onClick={this.onFileUpload}>
-                Upload Image
+                Upload Image and Mint
             </Button>
 			<img style={{width: "550px"}} src={this.state.image} />
           </DialogContent>
           <DialogActions>
-            <Button autoFocus onClick={this.mintToken}>
-              Mint
+            <Button autoFocus onClick={this.handleClose}>
+              Close
             </Button>
           </DialogActions>
         </BootstrapDialog>
